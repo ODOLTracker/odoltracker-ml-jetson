@@ -1,0 +1,8 @@
+BACKGROUND
+box_truck
+double_truck
+flat_bed_truck
+flatbed_container_truck
+overdimension_load
+pickup_truck
+single_truck
