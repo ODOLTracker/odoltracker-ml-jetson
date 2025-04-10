@@ -37,6 +37,11 @@ def compute_iou(boxA, boxB):
     iou = interArea / float(boxAArea + boxBArea - interArea + 1e-6)
     return iou
 
+# Inisialisasi total count
+total_odol = 0
+total_normal = 0
+vehicle_ids_seen = set()  # Untuk hindari double count (jika pakai ID unik)
+
 # Main loop
 while display.IsStreaming():
     img = camera.Capture()
@@ -56,22 +61,24 @@ while display.IsStreaming():
         elif label == config.odol_label:
             odols.append(det)
 
-    # Hitung jumlah ODOL dan Normal
-    count_odol = 0
-    count_normal = 0
-
+    # Cek dan hitung
     for vehicle, label in vehicles:
         is_odol = False
         for od in odols:
             iou = compute_iou(vehicle, od)
-            if iou > 0.3:  # Threshold bisa kamu sesuaikan
+            if iou > 0.3:
                 is_odol = True
                 break
         if is_odol:
-            count_odol += 1
+            total_odol += 1
         else:
-            count_normal += 1
+            total_normal += 1
 
-    print(f"Jumlah Kendaraan ODOL: {count_odol}, Normal: {count_normal}")
+    # Render saja, tapi tidak print per frame
     display.Render(img)
-    display.SetStatus("ODOL: {} | Normal: {} | {:.0f} FPS".format(count_odol, count_normal, net.GetNetworkFPS()))
+    display.SetStatus("ODOL: {} | Normal: {} | {:.0f} FPS".format(total_odol, total_normal, net.GetNetworkFPS()))
+
+# Setelah selesai (misal kamu stop pakai Ctrl+C), cetak total
+print("=== TOTAL HASIL DETEKSI ===")
+print(f"Total Kendaraan ODOL   : {total_odol}")
+print(f"Total Kendaraan Normal : {total_normal}")
